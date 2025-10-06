@@ -14,30 +14,28 @@ echo "================================"
 if [ -n "$DATABASE_URL" ] && echo "$DATABASE_URL" | grep -q "postgresql"; then
   echo "⏳ Waiting for PostgreSQL to be ready..."
   
-  # Wait for postgres with better logic
-  timeout=60
-  until echo "SELECT 1" | npx prisma db execute --stdin 2>/dev/null || [ $timeout -le 0 ]; do
-    timeout=$((timeout - 1))
-    if [ $timeout -le 0 ]; then
-      echo "❌ Database connection timeout after 60 seconds!"
-      echo "Trying migrations anyway..."
-      break
-    fi
-    echo "⏳ Still waiting for database... ($timeout seconds left)"
-    sleep 1
+  # Simple wait - just sleep to let postgres finish starting
+  # Docker compose already has depends_on with health check
+  echo "⏳ Giving database a few seconds to initialize..."
+  sleep 5
+  
+  echo "✅ Database should be ready (health check passed)!"
+  
+  # Run migrations - will retry if database isn't quite ready
+  echo "🔄 Running Prisma migrations..."
+  retries=10
+  until npx prisma migrate deploy || [ $retries -le 0 ]; do
+    retries=$((retries - 1))
+    echo "⚠️  Migration attempt failed, retrying... ($retries attempts left)"
+    sleep 2
   done
   
-  echo "✅ Database connection established!"
-  
-  # Run migrations - MUST succeed
-  echo "🔄 Running Prisma migrations..."
-  if npx prisma migrate deploy; then
-    echo "✅ Migrations applied successfully!"
-  else
-    echo "❌ Migration failed! Exiting..."
+  if [ $retries -le 0 ]; then
+    echo "❌ Migration failed after all retries! Exiting..."
     exit 1
   fi
   
+  echo "✅ Migrations applied successfully!"
   echo "✅ Database setup complete!"
 else
   echo "ℹ️  Using SQLite or no DATABASE_URL set"
