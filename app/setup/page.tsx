@@ -67,10 +67,14 @@ export default function SetupPage() {
 
       toast({
         title: 'Setup Complete!',
-        description: 'You can now access the admin dashboard',
+        description: 'Redirecting to admin dashboard...',
       });
 
-      router.push('/admin');
+      // Small delay to ensure cookie is properly set before redirect
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Use window.location for full page reload to ensure cookie is sent
+      window.location.href = '/admin';
     } catch (error: any) {
       toast({
         title: 'Setup Failed',
