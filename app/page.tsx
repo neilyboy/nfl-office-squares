@@ -169,6 +169,7 @@ export default function HomePage() {
 
   // Keep ref in sync with dialog state
   useEffect(() => {
+    console.log(`🔔 Dialog state changed: ${dialogOpen ? 'OPEN' : 'CLOSED'}`);
     dialogOpenRef.current = dialogOpen;
   }, [dialogOpen]);
 
@@ -176,12 +177,14 @@ export default function HomePage() {
   useEffect(() => {
     // Always clear any existing timer first
     if (rotationTimerRef.current) {
+      console.log('🗑️ Clearing existing rotation timer');
       clearTimeout(rotationTimerRef.current);
       rotationTimerRef.current = null;
     }
 
     // Don't auto-advance if dialog is open, auto-advance is off, or only one board
     if (!autoAdvance || boards.length <= 1 || dialogOpen) {
+      console.log(`⏸️ Rotation paused - autoAdvance: ${autoAdvance}, boards: ${boards.length}, dialogOpen: ${dialogOpen}`);
       return;
     }
 
@@ -189,10 +192,15 @@ export default function HomePage() {
     const timeSinceManualChange = now - lastManualChange;
     const delay = timeSinceManualChange < 20000 ? 20000 : 10000;
 
+    console.log(`⏱️ Setting rotation timer for ${delay}ms`);
     const timer = setTimeout(() => {
+      console.log(`🔔 Timer fired! Dialog ref is: ${dialogOpenRef.current ? 'OPEN' : 'CLOSED'}`);
       // Double-check dialog isn't open before advancing using ref (avoids stale closure)
       if (!dialogOpenRef.current) {
+        console.log('➡️ Advancing to next board');
         setCurrentBoardIndex((prev) => (prev + 1) % boards.length);
+      } else {
+        console.log('🛑 Dialog open - NOT advancing board');
       }
     }, delay);
 
@@ -201,6 +209,7 @@ export default function HomePage() {
 
     return () => {
       if (rotationTimerRef.current) {
+        console.log('🧹 Cleanup: clearing rotation timer');
         clearTimeout(rotationTimerRef.current);
         rotationTimerRef.current = null;
       }
@@ -225,15 +234,19 @@ export default function HomePage() {
   };
 
   const handleSquareClick = (row: number, col: number) => {
+    console.log(`🖱️ Square clicked: (${row}, ${col})`);
     // On main page, clicking a square only shows details (read-only)
     // Use Buy Squares button to enter purchase mode
     const square = currentBoard.squares.find((s: any) => s.row === row && s.col === col);
     
     if (square?.playerName) {
+      console.log(`📝 Opening dialog for claimed square: ${square.playerName}`);
       // Show square details in read-only mode
       setSelectedSquare(square);
       setDialogOpen(true);
+      console.log(`✅ setDialogOpen(true) called`);
     } else if (isAdmin) {
+      console.log(`🔧 Opening dialog for empty square (admin mode)`);
       // Admin can edit empty squares
       setSelectedSquare({
         id: `temp-${row}-${col}`,
@@ -244,6 +257,9 @@ export default function HomePage() {
         isPaid: false,
       });
       setDialogOpen(true);
+      console.log(`✅ setDialogOpen(true) called`);
+    } else {
+      console.log(`❌ Empty square - no action (not admin)`);
     }
   };
 
@@ -384,6 +400,7 @@ export default function HomePage() {
                   : undefined
               }
               onSquareClick={handleSquareClick}
+              showDialog={false}
             />
             </div>
           </div>
