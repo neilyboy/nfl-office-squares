@@ -43,17 +43,24 @@ export async function setAdminSession() {
   const cookieStore = await cookies();
   const useSecure = await shouldUseSecureCookies();
   
+  console.log(`🍪 Setting admin session cookie (secure: ${useSecure})`);
+  
   cookieStore.set(ADMIN_COOKIE_NAME, JSON.stringify({ isAdmin: true, timestamp: Date.now() }), {
     httpOnly: true,
     secure: useSecure,
     sameSite: 'lax',
+    path: '/',
     maxAge: 60 * 60 * 2, // 2 hours
   });
+  
+  console.log(`✅ Admin session cookie set successfully`);
 }
 
 export async function getAdminSession(): Promise<AdminSession | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(ADMIN_COOKIE_NAME);
+  
+  console.log(`🔍 Checking for admin session cookie: ${sessionCookie ? 'FOUND' : 'NOT FOUND'}`);
   
   if (!sessionCookie) {
     return null;
@@ -61,8 +68,10 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   
   try {
     const session = JSON.parse(sessionCookie.value);
+    console.log(`✅ Admin session validated`);
     return session;
   } catch (error) {
+    console.log(`❌ Failed to parse admin session cookie`);
     return null;
   }
 }
