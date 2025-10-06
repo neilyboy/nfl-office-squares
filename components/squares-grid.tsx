@@ -99,7 +99,7 @@ export function SquaresGrid({
 
   return (
     <>
-      <div className="relative p-4 bg-card rounded-lg border border-border aspect-square max-w-full" style={{ overflow: 'visible' }}>
+      <div className="relative p-4 bg-card rounded-lg border border-border max-w-full" style={{ overflow: 'visible', aspectRatio: '1/1', width: 'min(100%, calc(100vh - 120px))' }}>
         {/* Home Team Color Bar (horizontal - ABOVE grid) */}
         <div 
           className="absolute -top-2 left-[60px] right-0 h-12 rounded-t-lg pointer-events-none z-10"

@@ -412,8 +412,8 @@ export default function HomePage() {
           </div>
 
           {/* Center: Grid (View Mode) */}
-          <div className="flex flex-col gap-2 lg:min-h-0">
-            <div className="lg:overflow-visible">
+          <div className="flex flex-col gap-2 lg:min-h-0 lg:h-full">
+            <div className="lg:overflow-visible lg:h-full flex items-center justify-center">
               <SquaresGrid
               squares={currentBoard.squares}
               rowNumbers={currentBoard.rowNumbers}
