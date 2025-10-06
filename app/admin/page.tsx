@@ -29,28 +29,11 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if setup is complete first
-    const checkSetup = async () => {
-      try {
-        const response = await fetch('/api/admin/check-setup');
-        const data = await response.json();
-        if (!data.setupComplete) {
-          router.push('/setup');
-          return;
-        }
-        // Only proceed if setup is complete
-        checkSession();
-        fetchSettings();
-      } catch (error) {
-        console.error('Error checking setup:', error);
-        // If check fails, still try to load normally
-        checkSession();
-        fetchSettings();
-      }
-    };
-    
-    checkSetup();
-  }, [router]);
+    // Don't check setup here - admin page should always be accessible
+    // The main page handles redirecting to setup if needed
+    checkSession();
+    fetchSettings();
+  }, []);
 
   const checkSession = async () => {
     try {
