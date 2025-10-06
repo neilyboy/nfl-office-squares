@@ -203,9 +203,9 @@ export default function AdminPage() {
             </Button>
             <Button 
               variant="outline" 
-              onClick={async () => {
-                // Logout for security when going back to public view
-                await fetch('/api/admin/logout', { method: 'POST' });
+              onClick={() => {
+                // Just navigate, don't logout
+                // User stays logged in for quick access back to admin
                 router.push('/');
               }}
             >
