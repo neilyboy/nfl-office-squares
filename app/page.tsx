@@ -158,6 +158,24 @@ export default function HomePage() {
     }
   }, []);
 
+  // Check if setup is complete, redirect to setup if not
+  useEffect(() => {
+    const checkSetup = async () => {
+      try {
+        const response = await fetch('/api/admin/check-setup');
+        const data = await response.json();
+        if (!data.setupComplete) {
+          router.push('/setup');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking setup:', error);
+      }
+    };
+    
+    checkSetup();
+  }, [router]);
+
   // Fetch boards on mount and set up polling for live games
   useEffect(() => {
     fetchBoards();
