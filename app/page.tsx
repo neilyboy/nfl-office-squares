@@ -56,6 +56,7 @@ export default function HomePage() {
   const [isLoadingGameData, setIsLoadingGameData] = useState(false);
   const [previousGameStates, setPreviousGameStates] = useState<Map<string, any>>(new Map());
   const dialogOpenRef = useRef(false);
+  const rotationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchBoards = useCallback(async () => {
     try {
@@ -173,9 +174,14 @@ export default function HomePage() {
 
   // Auto-advance through boards
   useEffect(() => {
+    // Always clear any existing timer first
+    if (rotationTimerRef.current) {
+      clearTimeout(rotationTimerRef.current);
+      rotationTimerRef.current = null;
+    }
+
     // Don't auto-advance if dialog is open, auto-advance is off, or only one board
     if (!autoAdvance || boards.length <= 1 || dialogOpen) {
-      // Clear any existing timer when dialog opens
       return;
     }
 
@@ -190,7 +196,15 @@ export default function HomePage() {
       }
     }, delay);
 
-    return () => clearTimeout(timer);
+    // Store timer in ref so we can always clear it
+    rotationTimerRef.current = timer;
+
+    return () => {
+      if (rotationTimerRef.current) {
+        clearTimeout(rotationTimerRef.current);
+        rotationTimerRef.current = null;
+      }
+    };
   }, [autoAdvance, currentBoardIndex, boards.length, lastManualChange, dialogOpen]);
 
   // Sync game data from board
