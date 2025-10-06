@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { GameHeader } from '@/components/game-header';
 import { SquaresGrid } from '@/components/squares-grid';
 import { BoardInfoPanel } from '@/components/board-info-panel';
+import { PaymentInfoPanel } from '@/components/payment-info-panel';
 import { SquareSelectionDialog } from '@/components/square-selection-dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ShoppingCart, Settings } from 'lucide-react';
@@ -401,8 +402,16 @@ export default function HomePage() {
         </div>
 
         {/* Main content - scrollable on mobile, fills height on desktop */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-3 lg:min-h-0">
-          {/* Left: Grid Only (View Mode) */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[250px_1fr_350px] gap-3 lg:min-h-0">
+          {/* Left: Payment Info Panel */}
+          <div className="hidden lg:block lg:overflow-auto">
+            <PaymentInfoPanel 
+              paymentConfig={currentBoard.paymentConfig}
+              costPerSquare={currentBoard.costPerSquare}
+            />
+          </div>
+
+          {/* Center: Grid (View Mode) */}
           <div className="flex flex-col gap-2 lg:min-h-0">
             <div className="lg:overflow-visible">
               <SquaresGrid
@@ -424,6 +433,14 @@ export default function HomePage() {
               onSquareClick={handleSquareClick}
               showDialog={false}
             />
+            </div>
+            
+            {/* Payment Panel on Mobile - below grid */}
+            <div className="lg:hidden">
+              <PaymentInfoPanel 
+                paymentConfig={currentBoard.paymentConfig}
+                costPerSquare={currentBoard.costPerSquare}
+              />
             </div>
           </div>
 
