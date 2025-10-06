@@ -51,9 +51,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Copy entrypoint script
+# Copy entrypoint script  
 COPY --from=builder /app/docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
+RUN chmod 755 docker-entrypoint.sh && chown nextjs:nodejs docker-entrypoint.sh
 
 # Create data directory for SQLite (fallback if not using postgres)
 RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
