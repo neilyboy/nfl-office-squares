@@ -311,7 +311,7 @@ export default function HomePage() {
   const potentialWinner = getPotentialWinner();
 
   return (
-    <div className="h-screen overflow-hidden p-2 md:p-4">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden p-2 md:p-4">
       <div className="h-full max-w-7xl mx-auto flex flex-col">
         {/* Top navigation - compact */}
         <div className="flex items-center justify-between mb-2 flex-shrink-0">
@@ -336,11 +336,11 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Main content - fills remaining height */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-3">
+        {/* Main content - scrollable on mobile, fills height on desktop */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-3 lg:min-h-0">
           {/* Left: Grid Only (View Mode) */}
-          <div className="flex flex-col gap-2 min-h-0" style={{ overflow: 'visible', minHeight: 0 }}>
-            <div style={{ overflow: 'visible' }}>
+          <div className="flex flex-col gap-2 lg:min-h-0">
+            <div className="lg:overflow-visible">
               <SquaresGrid
               squares={currentBoard.squares}
               rowNumbers={currentBoard.rowNumbers}
@@ -363,7 +363,7 @@ export default function HomePage() {
           </div>
 
           {/* Right: Game Header + Board Info */}
-          <div className="flex flex-col gap-3 overflow-auto">
+          <div className="flex flex-col gap-3 lg:overflow-auto">
             {gameData && (
               <GameHeader
                 boardName={currentBoard.name}
