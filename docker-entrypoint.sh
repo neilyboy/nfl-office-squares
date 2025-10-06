@@ -16,7 +16,7 @@ if [ -n "$DATABASE_URL" ] && echo "$DATABASE_URL" | grep -q "postgresql"; then
   
   # Wait for postgres with better logic
   timeout=60
-  until npx prisma db execute --stdin <<< "SELECT 1" 2>/dev/null || [ $timeout -le 0 ]; do
+  until echo "SELECT 1" | npx prisma db execute --stdin 2>/dev/null || [ $timeout -le 0 ]; do
     timeout=$((timeout - 1))
     if [ $timeout -le 0 ]; then
       echo "❌ Database connection timeout after 60 seconds!"

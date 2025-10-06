@@ -5,8 +5,10 @@ npm-debug.log
 .gitignore
 README.md
 *.md
+.env
 .env*.local
 .DS_Store
 *.db
 *.db-journal
 /prisma/migrations
+data/
