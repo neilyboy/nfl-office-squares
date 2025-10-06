@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { GameHeader } from '@/components/game-header';
 import { SquaresGrid } from '@/components/squares-grid';
 import { BoardInfoPanel } from '@/components/board-info-panel';
@@ -55,6 +55,7 @@ export default function HomePage() {
   const [gameData, setGameData] = useState<any>(null);
   const [isLoadingGameData, setIsLoadingGameData] = useState(false);
   const [previousGameStates, setPreviousGameStates] = useState<Map<string, any>>(new Map());
+  const dialogOpenRef = useRef(false);
 
   const fetchBoards = useCallback(async () => {
     try {
@@ -165,17 +166,28 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty deps - only run once on mount
 
+  // Keep ref in sync with dialog state
+  useEffect(() => {
+    dialogOpenRef.current = dialogOpen;
+  }, [dialogOpen]);
+
   // Auto-advance through boards
   useEffect(() => {
     // Don't auto-advance if dialog is open, auto-advance is off, or only one board
-    if (!autoAdvance || boards.length <= 1 || dialogOpen) return;
+    if (!autoAdvance || boards.length <= 1 || dialogOpen) {
+      // Clear any existing timer when dialog opens
+      return;
+    }
 
     const now = Date.now();
     const timeSinceManualChange = now - lastManualChange;
     const delay = timeSinceManualChange < 20000 ? 20000 : 10000;
 
     const timer = setTimeout(() => {
-      setCurrentBoardIndex((prev) => (prev + 1) % boards.length);
+      // Double-check dialog isn't open before advancing using ref (avoids stale closure)
+      if (!dialogOpenRef.current) {
+        setCurrentBoardIndex((prev) => (prev + 1) % boards.length);
+      }
     }, delay);
 
     return () => clearTimeout(timer);
