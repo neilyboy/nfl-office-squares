@@ -402,7 +402,7 @@ export default function HomePage() {
         </div>
 
         {/* Main content - scrollable on mobile, fills height on desktop */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)_280px] gap-3 lg:gap-5 lg:min-h-0">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_320px] gap-3 lg:gap-5 lg:min-h-0">
           {/* Left: Payment Info Panel */}
           <div className="hidden lg:block lg:overflow-auto">
             <PaymentInfoPanel 

@@ -271,18 +271,7 @@ export function SquaresGrid({
         </div> {/* Close inner grid */}
       </div> {/* Close outer container */}
 
-      {/* Current scores indicator below grid */}
-      {currentScores && isFinalized && rowNumbers && colNumbers && (
-        <div className="mt-2 flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>
-            Current: {awayTeamAbbr} {currentScores.home} → {rowNumbers && (currentScores.home % 10)}
-          </span>
-          <span>|</span>
-          <span>
-            {homeTeamAbbr} {currentScores.away} → {colNumbers && (currentScores.away % 10)}
-          </span>
-        </div>
-      )}
+      {/* Score display removed - shown in GameHeader instead */}
 
       {/* Square details dialog - only show if showDialog is true */}
       {showDialog && selectedSquare && (
