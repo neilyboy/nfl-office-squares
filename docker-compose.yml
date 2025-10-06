@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: nfl-squares-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-squares}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-squares123}
+      POSTGRES_DB: ${POSTGRES_DB:-nfl_squares}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nfl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-squares}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NFL Squares Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nfl-squares-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3002}:3002"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-postgresql://squares:squares123@db:5432/nfl_squares?schema=public}
+      - PORT=3002
+      - TZ=${TZ:-America/Chicago}
+      - FORCE_SECURE_COOKIES=${FORCE_SECURE_COOKIES:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nfl-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nfl-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

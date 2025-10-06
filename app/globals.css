@@ -1,0 +1,162 @@
+@import 'react-simple-keyboard/build/css/index.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary/80;
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Square grid animations */
+.square-cell {
+  transition: all 0.2s ease;
+}
+
+.square-cell:hover {
+  transform: scale(1.05);
+}
+
+/* Potential winner pulse animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.potential-winner {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Quarter badge styles */
+.quarter-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.quarter-badge-1 {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.quarter-badge-2 {
+  background-color: #10b981;
+  color: white;
+}
+
+.quarter-badge-3 {
+  background-color: #eab308;
+  color: black;
+}
+
+.quarter-badge-4 {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Keyboard styling */
+.simple-keyboard {
+  background-color: hsl(var(--card)) !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  pointer-events: auto !important;
+}
+
+.simple-keyboard .hg-button {
+  background: hsl(var(--secondary)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600;
+  box-shadow: none !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.simple-keyboard .hg-button:active,
+.simple-keyboard .hg-button:hover {
+  background: hsl(var(--accent)) !important;
+}
+
+.simple-keyboard .hg-button.hg-functionBtn {
+  background: hsl(var(--muted)) !important;
+}
+
+.simple-keyboard .hg-button.hg-activeButton {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.simple-keyboard .hg-button.hg-standardBtn {
+  min-width: 40px;
+}

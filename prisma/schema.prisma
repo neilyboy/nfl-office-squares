@@ -1,0 +1,87 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Admin settings - stores PIN and password
+model AdminSettings {
+  id                    Int      @id @default(1)
+  pin                   String   // Hashed PIN
+  password              String   // Hashed password for PIN recovery
+  enableOnScreenKeyboard Boolean @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// Payment configuration for boards
+model PaymentConfig {
+  id              String  @id @default(cuid())
+  boardId         String  @unique
+  paypalUsername  String?
+  venmoUsername   String?
+  allowCash       Boolean @default(true)
+  allowPaypal     Boolean @default(true)
+  allowVenmo      Boolean @default(true)
+  board           Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+// Boards - stores all square boards
+model Board {
+  id              String         @id @default(cuid())
+  name            String         // Friendly name like "$1 Per Square"
+  gameId          String         // ESPN Game ID
+  teamHome        String         // Home team name
+  teamAway        String         // Away team name
+  costPerSquare   Float          // Cost per square
+  payoutQ1        Float          // Percentage for Q1 (0-100) or dollar amount
+  payoutQ2        Float          // Percentage for Q2 (0-100) or dollar amount
+  payoutQ3        Float          // Percentage for Q3 (0-100) or dollar amount
+  payoutQ4        Float          // Percentage for Q4 (0-100) or dollar amount
+  payoutType      String         @default("percentage") // "percentage" or "dollar"
+  status          String         @default("open") // open, closed, live, completed, archived
+  isFinalized     Boolean        @default(false)  // Numbers revealed when true
+  rowNumbers      String?        // JSON array of 10 numbers (0-9 randomized)
+  colNumbers      String?        // JSON array of 10 numbers (0-9 randomized)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  squares         Square[]
+  paymentConfig   PaymentConfig?
+  winners         Winner[]
+}
+
+// Individual squares on a board
+model Square {
+  id            String   @id @default(cuid())
+  boardId       String
+  row           Int      // 0-9
+  col           Int      // 0-9
+  playerName    String?
+  paymentMethod String?  // paypal, venmo, cash
+  isPaid        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  board         Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, row, col])
+}
+
+// Winners for each quarter
+model Winner {
+  id        String   @id @default(cuid())
+  boardId   String
+  quarter   Int      // 1, 2, 3, 4
+  playerName String
+  scoreHome Int
+  scoreAway Int
+  payout    Float
+  createdAt DateTime @default(now())
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, quarter])
+}
