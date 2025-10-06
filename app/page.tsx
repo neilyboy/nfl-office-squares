@@ -376,8 +376,8 @@ export default function HomePage() {
   const potentialWinner = getPotentialWinner();
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden p-2 md:p-4 pt-6 md:pt-8">
-      <div className="h-full max-w-7xl mx-auto flex flex-col">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden p-2 md:p-4 lg:p-6 lg:px-8 pt-6 md:pt-8">
+      <div className="h-full w-full flex flex-col">
         {/* Top navigation - compact */}
         <div className="flex items-center justify-between mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
