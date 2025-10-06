@@ -78,5 +78,7 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
 export async function clearAdminSession() {
   const cookieStore = await cookies();
+  console.log('🗑️  Clearing admin session cookie...');
   cookieStore.delete(ADMIN_COOKIE_NAME);
+  console.log('✅ Admin session cookie cleared');
 }

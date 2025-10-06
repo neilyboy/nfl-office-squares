@@ -15,7 +15,7 @@ services:
     networks:
       - nfl-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-squares}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-squares} -d ${POSTGRES_DB:-nfl_squares}"]
       interval: 10s
       timeout: 5s
       retries: 5
