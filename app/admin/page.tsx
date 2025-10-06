@@ -199,7 +199,14 @@ export default function AdminPage() {
               <Lock className="w-4 h-4 mr-2" />
               Logout
             </Button>
-            <Button variant="outline" onClick={() => router.push('/')}>
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                // Logout for security when going back to public view
+                await fetch('/api/admin/logout', { method: 'POST' });
+                router.push('/');
+              }}
+            >
               Back to Boards
             </Button>
           </div>
