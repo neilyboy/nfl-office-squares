@@ -37,4 +37,3 @@ next-env.d.ts
 # prisma
 *.db
 *.db-journal
-/prisma/migrations
