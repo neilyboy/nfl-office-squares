@@ -70,11 +70,14 @@ export default function SetupPage() {
         description: 'Redirecting to admin dashboard...',
       });
 
-      // Small delay to ensure cookie is properly set before redirect
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Longer delay to ensure:
+      // 1. Cookie is set
+      // 2. Database transaction is committed
+      // 3. Browser processes the response
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Use window.location for full page reload to ensure cookie is sent
-      window.location.href = '/admin';
+      // Force full page reload with cache bypass
+      window.location.replace('/admin');
     } catch (error: any) {
       toast({
         title: 'Setup Failed',

@@ -162,14 +162,18 @@ export default function HomePage() {
   useEffect(() => {
     const checkSetup = async () => {
       try {
+        console.log('🔍 Main page: Checking if setup is complete...');
         const response = await fetch('/api/admin/check-setup');
         const data = await response.json();
+        console.log('📋 Main page: Setup check result:', data);
         if (!data.setupComplete) {
+          console.log('➡️ Main page: Redirecting to /setup');
           router.push('/setup');
           return;
         }
+        console.log('✅ Main page: Setup complete, loading boards');
       } catch (error) {
-        console.error('Error checking setup:', error);
+        console.error('❌ Main page: Error checking setup:', error);
       }
     };
     
