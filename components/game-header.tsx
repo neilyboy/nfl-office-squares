@@ -105,6 +105,7 @@ export function GameHeader({
             width={120}
             height={30}
             className="h-6 w-auto object-contain"
+            style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.9)) drop-shadow(0 0 8px rgba(255,255,255,0.6))' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
@@ -149,6 +150,7 @@ export function GameHeader({
             width={120}
             height={30}
             className="h-6 w-auto object-contain"
+            style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.9)) drop-shadow(0 0 8px rgba(255,255,255,0.6))' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
