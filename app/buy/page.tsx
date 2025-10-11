@@ -11,7 +11,7 @@ import { SquaresGrid } from '@/components/squares-grid';
 import { OnScreenKeyboard } from '@/components/on-screen-keyboard';
 import { useToast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
-import { ShoppingCart, User, CreditCard, ArrowLeft, Keyboard as KeyboardIcon } from 'lucide-react';
+import { ShoppingCart, User, CreditCard, ArrowLeft, Keyboard as KeyboardIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function BuyPageContent() {
   const searchParams = useSearchParams();
@@ -19,7 +19,8 @@ function BuyPageContent() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [board, setBoard] = useState<any>(null);
+  const [boards, setBoards] = useState<any[]>([]);
+  const [currentBoardIndex, setCurrentBoardIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedSquares, setSelectedSquares] = useState<Set<string>>(new Set());
   const [playerName, setPlayerName] = useState('');
@@ -29,26 +30,38 @@ function BuyPageContent() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!boardId) {
-      router.push('/');
-      return;
-    }
-
-    fetchBoard();
+    fetchBoards();
     checkKeyboardSetting();
-  }, [boardId]);
+  }, []);
 
-  const fetchBoard = async () => {
+  useEffect(() => {
+    // Find the board index when boardId changes or boards load
+    if (boardId && boards.length > 0) {
+      const index = boards.findIndex(b => b.id === parseInt(boardId));
+      if (index !== -1) {
+        setCurrentBoardIndex(index);
+      }
+    }
+  }, [boardId, boards]);
+
+  const fetchBoards = async () => {
     try {
-      const response = await fetch(`/api/boards/${boardId}`);
-      if (!response.ok) throw new Error('Board not found');
+      const response = await fetch('/api/boards');
+      if (!response.ok) throw new Error('Failed to load boards');
       const data = await response.json();
-      setBoard(data.board);
+      const openBoards = data.boards.filter((b: any) => b.status === 'open');
+      setBoards(openBoards);
+      
+      // If no boardId in URL and we have boards, use first one
+      if (!boardId && openBoards.length > 0) {
+        router.push(`/buy?boardId=${openBoards[0].id}`);
+      }
+      
       setLoading(false);
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load board',
+        description: 'Failed to load boards',
         variant: 'destructive',
       });
       router.push('/');
@@ -104,6 +117,28 @@ function BuyPageContent() {
     setStep('payment');
   };
 
+  const handlePrevBoard = () => {
+    if (currentBoardIndex > 0) {
+      const newIndex = currentBoardIndex - 1;
+      setCurrentBoardIndex(newIndex);
+      router.push(`/buy?boardId=${boards[newIndex].id}`);
+      // Reset selections when changing boards
+      setSelectedSquares(new Set());
+      setStep('select');
+    }
+  };
+
+  const handleNextBoard = () => {
+    if (currentBoardIndex < boards.length - 1) {
+      const newIndex = currentBoardIndex + 1;
+      setCurrentBoardIndex(newIndex);
+      router.push(`/buy?boardId=${boards[newIndex].id}`);
+      // Reset selections when changing boards
+      setSelectedSquares(new Set());
+      setStep('select');
+    }
+  };
+
   const handlePayment = async (method: 'paypal' | 'venmo' | 'cash') => {
     setSubmitting(true);
     try {
@@ -116,7 +151,7 @@ function BuyPageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          boardId,
+          boardId: board.id,
           squares,
           playerName,
           paymentMethod: method,
@@ -154,79 +189,123 @@ function BuyPageContent() {
     );
   }
 
+  if (boards.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">No open boards available</p>
+      </div>
+    );
+  }
+
+  const board = boards[currentBoardIndex];
   if (!board) return null;
 
   const totalCost = selectedSquares.size * board.costPerSquare;
   const availableSquares = 100 - board.squares.length;
 
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-32">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden p-2 md:p-4 lg:p-6 lg:px-8 pt-6 md:pt-8">
+      <div className="h-full w-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => router.push('/')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">{board.name}</h1>
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => router.push('/')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            {boards.length > 1 && (
+              <>
+                <Button variant="outline" size="sm" onClick={handlePrevBoard} disabled={currentBoardIndex === 0}>
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {currentBoardIndex + 1}/{boards.length}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleNextBoard} disabled={currentBoardIndex === boards.length - 1}>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </>
+            )}
+          </div>
+          <h1 className="text-lg md:text-xl font-bold">{board.name}</h1>
           <div className="w-20" />
         </div>
 
         {step === 'select' && (
-          <>
-            {/* Info Card */}
-            <Card className="mb-6">
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 lg:min-h-0 pb-24 lg:pb-0">
+            {/* Left: Grid */}
+            <div className="flex flex-col lg:min-h-0">
+              <div className="lg:overflow-visible lg:h-full flex items-center justify-center">
+                <SquaresGrid
+                  squares={board.squares}
+                  rowNumbers={board.isFinalized ? JSON.parse(board.rowNumbers) : null}
+                  colNumbers={board.isFinalized ? JSON.parse(board.colNumbers) : null}
+                  isFinalized={board.isFinalized}
+                  homeTeamAbbr={board.teamHome}
+                  awayTeamAbbr={board.teamAway}
+                  onSquareClick={handleSquareClick}
+                  selectedSquares={selectedSquares}
+                />
+              </div>
+            </div>
+
+            {/* Right: Info Panel */}
+            <div className="hidden lg:block lg:overflow-auto">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Purchase Info</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Cost per Square</p>
-                    <p className="text-xl font-bold">{formatCurrency(board.costPerSquare)}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(board.costPerSquare)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Available</p>
-                    <p className="text-xl font-bold">{availableSquares} / 100</p>
+                    <p className="text-2xl font-bold">{availableSquares} / 100</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Selected</p>
-                    <p className="text-xl font-bold text-primary">{selectedSquares.size}</p>
+                    <p className="text-2xl font-bold text-primary">{selectedSquares.size}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Total Cost</p>
-                    <p className="text-xl font-bold text-green-500">{formatCurrency(totalCost)}</p>
+                    <p className="text-2xl font-bold text-green-500">{formatCurrency(totalCost)}</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Grid */}
-            <div style={{ overflow: 'visible' }}>
-              <SquaresGrid
-                squares={board.squares}
-                rowNumbers={board.isFinalized ? JSON.parse(board.rowNumbers) : null}
-                colNumbers={board.isFinalized ? JSON.parse(board.colNumbers) : null}
-                isFinalized={board.isFinalized}
-                homeTeamAbbr={board.teamHome}
-                awayTeamAbbr={board.teamAway}
-                onSquareClick={handleSquareClick}
-                selectedSquares={selectedSquares}
-              />
+                </CardContent>
+              </Card>
             </div>
+          </div>
 
-            {/* Continue Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border">
-              <div className="max-w-6xl mx-auto">
-                <Button
-                  onClick={handleContinue}
-                  disabled={selectedSquares.size === 0}
-                  className="w-full"
-                  size="lg"
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Continue ({selectedSquares.size} square{selectedSquares.size !== 1 ? 's' : ''} - {formatCurrency(totalCost)})
-                </Button>
-              </div>
-            </div>
-          </>
+        )}
+
+        {/* Continue Button - Fixed at bottom */}
+        {step === 'select' && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border lg:hidden">
+            <Button
+              onClick={handleContinue}
+              disabled={selectedSquares.size === 0}
+              className="w-full"
+              size="lg"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Continue ({selectedSquares.size} square{selectedSquares.size !== 1 ? 's' : ''} - {formatCurrency(totalCost)})
+            </Button>
+          </div>
+        )}
+
+        {/* Desktop Continue Button */}
+        {step === 'select' && (
+          <div className="hidden lg:block fixed bottom-4 right-4">
+            <Button
+              onClick={handleContinue}
+              disabled={selectedSquares.size === 0}
+              size="lg"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Continue ({selectedSquares.size} square{selectedSquares.size !== 1 ? 's' : ''} - {formatCurrency(totalCost)})
+            </Button>
+          </div>
         )}
 
         {step === 'details' && (
