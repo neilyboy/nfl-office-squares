@@ -227,8 +227,8 @@ function BuyPageContent() {
               </>
             )}
           </div>
+          <div className="flex-1" /> {/* Spacer */}
           <h1 className="text-lg md:text-xl font-bold">{board.name}</h1>
-          <div className="w-20" />
         </div>
 
         {step === 'select' && (
